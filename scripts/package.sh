@@ -2,17 +2,18 @@
 
 set -Eeuo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DIST_DIR="${ROOT_DIR}/dist"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
+DOWNLOADS_DIR="${ROOT_DIR}/site/downloads"
 
-MAC_INSTALLER="${ROOT_DIR}/mac/HermesAgentInstaller.command"
-WINDOWS_INSTALLER="${ROOT_DIR}/windows/HermesAgentInstaller.ps1"
+MAC_INSTALLER="${ROOT_DIR}/installers/macos/HermesAgentInstaller.command"
+WINDOWS_INSTALLER="${ROOT_DIR}/installers/windows/HermesAgentInstaller.ps1"
 
-mkdir -p "${DIST_DIR}"
+mkdir -p "${DOWNLOADS_DIR}"
 
 package_mac() {
-  local zip_path="${DIST_DIR}/HermesAgentInstaller-mac.zip"
-  local direct_path="${DIST_DIR}/HermesAgentInstaller.command"
+  local zip_path="${DOWNLOADS_DIR}/HermesAgentInstaller-mac.zip"
+  local direct_path="${DOWNLOADS_DIR}/HermesAgentInstaller.command"
   [[ -f "${MAC_INSTALLER}" ]] || { echo "缺少: ${MAC_INSTALLER}" >&2; exit 1; }
 
   chmod +x "${MAC_INSTALLER}"
@@ -20,7 +21,7 @@ package_mac() {
   chmod +x "${direct_path}"
   rm -f "${zip_path}"
   (
-    cd "${ROOT_DIR}/mac"
+    cd "${ROOT_DIR}/installers/macos"
     zip -q -r "${zip_path}" "HermesAgentInstaller.command"
   )
   echo "已生成: ${zip_path}"
@@ -28,8 +29,8 @@ package_mac() {
 }
 
 package_windows() {
-  local zip_path="${DIST_DIR}/HermesAgentInstaller-windows.zip"
-  local direct_path="${DIST_DIR}/HermesAgentInstaller.ps1"
+  local zip_path="${DOWNLOADS_DIR}/HermesAgentInstaller-windows.zip"
+  local direct_path="${DOWNLOADS_DIR}/HermesAgentInstaller.ps1"
   [[ -f "${WINDOWS_INSTALLER}" ]] || { echo "缺少: ${WINDOWS_INSTALLER}" >&2; exit 1; }
 
   python3 - "${WINDOWS_INSTALLER}" "${direct_path}" <<'PY'
@@ -44,7 +45,7 @@ dst.write_text(text, encoding="utf-8-sig")
 PY
   rm -f "${zip_path}"
   (
-    cd "${ROOT_DIR}/windows"
+    cd "${ROOT_DIR}/installers/windows"
     zip -q -r "${zip_path}" "HermesAgentInstaller.ps1"
   )
   echo "已生成: ${zip_path}"

@@ -90,7 +90,7 @@ env -i \
   SHELL="/bin/zsh" \
   HERMES_INSTALL_URL="file://${MOCK_INSTALLER}" \
   HERMES_DEFAULT_DEEPSEEK_MODEL="deepseek-v4-pro" \
-  bash "${ROOT_DIR}/mac/HermesAgentInstaller.command" > "${OUTPUT_FILE}" 2>&1 <<'INPUT'
+  bash "${ROOT_DIR}/installers/macos/HermesAgentInstaller.command" > "${OUTPUT_FILE}" 2>&1 <<'INPUT'
 1
 
 test-deepseek-key
@@ -119,7 +119,7 @@ env -i \
   SHELL="/bin/zsh" \
   HERMES_INSTALL_URL="file://${MOCK_INSTALLER}" \
   HERMES_DEFAULT_DEEPSEEK_MODEL="deepseek-v4-pro" \
-  bash "${ROOT_DIR}/mac/HermesAgentInstaller.command" > "${OUTPUT_FILE}.cleanup" 2>&1 <<'INPUT'
+  bash "${ROOT_DIR}/installers/macos/HermesAgentInstaller.command" > "${OUTPUT_FILE}.cleanup" 2>&1 <<'INPUT'
 6
 
 n

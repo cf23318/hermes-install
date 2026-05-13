@@ -2,7 +2,7 @@
 
 这个目录包含 macOS 和 Windows 原生版 Hermes Agent 安装器。目标是让同事通过尽量少的步骤完成安装：
 
-1. macOS 下载 `dist/HermesAgentInstaller.command`；Windows 下载 `dist/HermesAgentInstaller.ps1`
+1. macOS 下载 `site/downloads/HermesAgentInstaller.command`；Windows 下载 `site/downloads/HermesAgentInstaller.ps1`
 2. macOS 双击 `HermesAgentInstaller.command`；Windows 在 PowerShell 中运行 `HermesAgentInstaller.ps1`
 3. 输入自己的 DeepSeek API Key。为避免 Windows 终端隐藏输入时粘贴失败，安装器会明文显示 Key 输入内容，请确认周围无人观看
 4. 按提示选择聊天工具；推荐使用飞书
@@ -49,19 +49,19 @@ Windows 安装日志会写到：
 
 ## 打包
 
-仓库维护时只需要运行根目录脚本：
+仓库维护时只需要运行打包脚本：
 
 ```bash
-./package.sh
+./scripts/package.sh
 ```
 
-它会重新生成 macOS 和 Windows 两个直接下载文件，并保留 zip 备用产物，最终用户不会看到这个脚本。
+它会重新生成 macOS 和 Windows 两个直接下载文件，并保留 zip 备用产物。生成结果会放在 `site/downloads/`，由 GitHub Pages 直接分发。
 
 ## 内部复制页
 
 `password.html` 是本地内部使用的“复制信息”页面，用来替代旧的 `password.txt`。需要更新 DeepSeek Key，或更新非扫码/手动凭据方式使用的飞书 App ID、App Secret 时，直接修改这个 HTML 页面。
 
-真实的 `password.html` 已被 `.gitignore` 排除，不能提交到公开仓库。公开仓库只保留 `password.example.html` 作为占位示例。
+真实的 `password.html` 已被 `.gitignore` 排除，不能提交到公开仓库。公开仓库只保留 `examples/password.example.html` 作为占位示例。
 
 ## 注意事项
 
