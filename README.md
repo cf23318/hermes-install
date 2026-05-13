@@ -19,7 +19,7 @@
 - 设置默认 provider 为 `deepseek`，默认模型为 `deepseek-v4-pro`，并固定 `model.base_url` 为 `https://api.deepseek.com/v1`
 - 启动 `hermes gateway setup` 引导用户选择聊天工具，安装器会提示推荐飞书
 - 安装并启动后台 Gateway 服务，让聊天工具消息能自动进入 Hermes
-- 提供环境检查、软卸载、完全卸载、重新配置 Key、重新配置聊天工具、单独修复浏览器工具/聊天网关、关闭 Hermes/Gateway 功能
+- 提供 Hermes/Gateway 状态与错误日志检查、软卸载、完全卸载、重新配置 Key、重新配置聊天工具、单独修复浏览器工具/聊天网关、关闭 Hermes/Gateway 功能
 
 ## 测试重装
 

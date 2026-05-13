@@ -958,6 +958,135 @@ function Run-Checks {
     }
 }
 
+function Invoke-HermesHealthCommand {
+    param(
+        [string]$Label,
+        [string]$Hermes,
+        [string[]]$Arguments
+    )
+
+    Write-Info "执行: $Label"
+    & $Hermes @Arguments
+    if ($LASTEXITCODE -ne 0) {
+        Write-Warn2 "$Label 返回异常，退出码: $LASTEXITCODE"
+    }
+}
+
+function Show-HermesProcesses {
+    Write-Title "Hermes/Gateway 进程检查"
+
+    $escapedInstallDir = [regex]::Escape($InstallDir)
+    $escapedHermesHome = [regex]::Escape($HermesHome)
+    $processes = @(Get-CimInstance Win32_Process -ErrorAction SilentlyContinue | Where-Object {
+        ($_.CommandLine -match $escapedInstallDir) -or
+        ($_.ExecutablePath -match $escapedInstallDir) -or
+        ($_.CommandLine -match $escapedHermesHome -and $_.Name -match '^(python|pythonw|hermes|ha)\.exe$') -or
+        ($_.CommandLine -match 'hermes.*gateway')
+    })
+
+    if ($processes.Count -eq 0) {
+        Write-Warn2 "未发现明显的 Hermes/Gateway 运行进程。"
+        return
+    }
+
+    foreach ($proc in $processes) {
+        Write-Info ("运行中进程: {0} PID={1} {2}" -f $proc.Name, $proc.ProcessId, $proc.CommandLine)
+    }
+}
+
+function Get-HermesLogFiles {
+    $dirs = @(
+        (Join-Path $HermesHome "logs"),
+        (Join-Path $HermesHome "installer-logs")
+    )
+
+    $files = @()
+    foreach ($dir in $dirs) {
+        if (Test-Path $dir) {
+            $files += @(Get-ChildItem -Path $dir -File -ErrorAction SilentlyContinue)
+        }
+    }
+
+    return @($files | Sort-Object LastWriteTime -Descending | Select-Object -First 6)
+}
+
+function Show-RecentHermesLogs {
+    Write-Title "最近 Hermes 日志片段"
+
+    $files = @(Get-HermesLogFiles)
+    if ($files.Count -eq 0) {
+        Write-Warn2 "未找到 Hermes 日志文件。"
+        return
+    }
+
+    foreach ($file in $files) {
+        Write-Info "日志文件: $($file.FullName)"
+        Get-Content $file.FullName -Tail 80 -ErrorAction SilentlyContinue
+    }
+}
+
+function Show-LogErrorHints {
+    Write-Title "最近日志错误关键词"
+
+    $files = @(Get-HermesLogFiles)
+    if ($files.Count -eq 0) {
+        Write-Warn2 "没有日志可扫描。"
+        return
+    }
+
+    $pattern = "error|traceback|exception|invalid|unauthorized|denied|allowlist|app_id|app_secret|timeout|failed"
+    $found = $false
+    foreach ($file in $files) {
+        $matches = @(Select-String -Path $file.FullName -Pattern $pattern -AllMatches -ErrorAction SilentlyContinue | Select-Object -Last 40)
+        foreach ($match in $matches) {
+            $found = $true
+            Write-Host ("{0}:{1}: {2}" -f $file.FullName, $match.LineNumber, $match.Line) -ForegroundColor Yellow
+        }
+    }
+
+    if ($found) {
+        Write-Warn2 "上面列出了最近日志里的可疑错误关键词，请结合时间点排查。"
+    } else {
+        Write-Info "最近日志没有匹配到常见错误关键词。"
+    }
+}
+
+function Run-HealthCheck {
+    Write-Title "Hermes/Gateway 状态检查"
+
+    $hermes = Get-HermesCommand
+    if ([string]::IsNullOrWhiteSpace($hermes)) {
+        Write-Warn2 "未找到 hermes 命令，Hermes 可能尚未安装。"
+        Show-HermesProcesses
+        Show-RecentHermesLogs
+        Show-LogErrorHints
+        Write-Info "健康检查完成：未找到 hermes 命令。"
+        return
+    }
+
+    Write-Info "hermes: $hermes"
+    Write-Title "Hermes 自带状态命令"
+    Invoke-HermesHealthCommand "hermes --version" $hermes @("--version")
+    Invoke-HermesHealthCommand "hermes status" $hermes @("status")
+    Invoke-HermesHealthCommand "hermes config check" $hermes @("config", "check")
+    Invoke-HermesHealthCommand "hermes gateway status" $hermes @("gateway", "status")
+    Invoke-HermesHealthCommand "hermes gateway list" $hermes @("gateway", "list")
+
+    Show-HermesProcesses
+
+    Write-Title "Hermes 自带日志命令"
+    $logsPath = Join-Path $env:TEMP ("hermes-health-logs-{0}" -f (Get-Random))
+    $logsCode = Invoke-ProcessWithTimeout $hermes @("logs") $HermesHome 30 "hermes logs" $logsPath
+    Show-CommandLogSnippet $logsPath
+    if ($logsCode -ne 0) {
+        Write-Warn2 "hermes logs 不可用或执行超时，改为读取本地日志文件。"
+        Show-RecentHermesLogs
+    }
+
+    Show-LogErrorHints
+    Write-Info "健康检查完成。"
+}
+
 function Uninstall-Hermes {
     Write-Title "卸载 Hermes"
 
@@ -1056,7 +1185,7 @@ function Main-Menu {
         Write-Host "1) 安装/修复 Hermes，并配置 DeepSeek 与聊天工具（推荐飞书）"
         Write-Host "2) 启动/重启 Hermes/Gateway"
         Write-Host "3) 关闭 Hermes/Gateway"
-        Write-Host "4) 检查当前环境"
+        Write-Host "4) 检查 Hermes/Gateway 状态与错误日志"
         Write-Host "5) 只重新配置 DeepSeek Key/模型"
         Write-Host "6) 只配置聊天工具（推荐飞书）"
         Write-Host "7) 只安装/修复浏览器工具"
@@ -1068,7 +1197,7 @@ function Main-Menu {
             "1" { Install-Or-Repair; Pause-Installer }
             "2" { Configure-Proxy; Stop-HermesProcesses; Install-FeishuDependencies; Start-Gateway; Pause-Installer }
             "3" { Stop-HermesMenu; Pause-Installer }
-            "4" { Configure-Proxy; Run-Checks; Pause-Installer }
+            "4" { Run-HealthCheck; Pause-Installer }
             "5" { Configure-DeepSeek; Pause-Installer }
             "6" { Configure-Proxy; Install-FeishuDependencies; Configure-Messaging; Start-Gateway; Pause-Installer }
             "7" { Configure-Proxy; Install-BrowserTools; Pause-Installer }

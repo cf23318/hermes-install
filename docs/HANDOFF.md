@@ -84,7 +84,7 @@ macOS 和 Windows 菜单已尽量保持一致：
 1) 安装/修复 Hermes，并配置 DeepSeek 与聊天工具（推荐飞书）
 2) 启动/重启 Hermes/Gateway
 3) 关闭 Hermes/Gateway
-4) 检查当前环境
+4) 检查 Hermes/Gateway 状态与错误日志
 5) 只重新配置 DeepSeek Key/模型
 6) 只配置聊天工具（推荐飞书）
 7) 只安装/修复浏览器工具
@@ -97,6 +97,19 @@ macOS 和 Windows 菜单已尽量保持一致：
 `2)` 会先停止旧进程，再安装/检查聊天工具依赖并启动新的 Gateway。
 
 `3)` 用于关闭 Hermes/Gateway，并清理占用安装目录的残留进程。
+
+`4)` 会优先调用 Hermes 自带命令检查状态：
+
+```text
+hermes --version
+hermes status
+hermes config check
+hermes gateway status
+hermes gateway list
+hermes logs
+```
+
+如果 `hermes logs` 不可用或超时，会读取本地日志目录，并扫描 `ERROR`、`Traceback`、`invalid`、`unauthorized`、`allowlist`、`app_id`、`app_secret`、`timeout`、`failed` 等常见错误关键词。
 
 ## 安装目录和配置目录
 

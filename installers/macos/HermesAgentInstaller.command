@@ -689,6 +689,124 @@ run_checks() {
   fi
 }
 
+run_hermes_health_command() {
+  local label="$1"
+  shift
+
+  info "执行: ${label}"
+  if "$@"; then
+    return 0
+  fi
+
+  local code=$?
+  warn "${label} 返回异常，退出码: ${code}"
+  return "${code}"
+}
+
+show_hermes_processes() {
+  print_title "Hermes/Gateway 进程检查"
+
+  local found=0 line pid cmd
+  while IFS= read -r line; do
+    pid="${line%% *}"
+    cmd="${line#* }"
+    [[ -n "${pid}" && -n "${cmd}" ]] || continue
+    if [[ "${cmd}" == *"${HERMES_HOME}"* || "${cmd}" == *"hermes gateway"* ]]; then
+      info "运行中进程: PID=${pid} ${cmd}"
+      found=1
+    fi
+  done < <(ps -axo pid=,command= 2>/dev/null || true)
+
+  if [[ "${found}" == "0" ]]; then
+    warn "未发现明显的 Hermes/Gateway 运行进程。"
+  fi
+}
+
+collect_log_files() {
+  local dir file count=0
+  for dir in "${HERMES_HOME}/logs" "${LOG_DIR}"; do
+    [[ -d "${dir}" ]] || continue
+    while IFS= read -r file; do
+      printf "%s\n" "${file}"
+      count=$((count + 1))
+      (( count >= 6 )) && return 0
+    done < <(find "${dir}" -type f \( -name "*.log" -o -name "install-*" \) 2>/dev/null | sort -r)
+  done
+}
+
+show_recent_log_files() {
+  print_title "最近 Hermes 日志片段"
+
+  local file found=0
+  while IFS= read -r file; do
+    [[ -f "${file}" ]] || continue
+    found=1
+    info "日志文件: ${file}"
+    tail -n 80 "${file}" 2>/dev/null || true
+  done < <(collect_log_files)
+
+  if [[ "${found}" == "0" ]]; then
+    warn "未找到 Hermes 日志文件。"
+  fi
+}
+
+scan_recent_log_errors() {
+  print_title "最近日志错误关键词"
+
+  local file found_logs=0 found_errors=0
+  while IFS= read -r file; do
+    [[ -f "${file}" ]] || continue
+    found_logs=1
+    if grep -Ein "error|traceback|exception|invalid|unauthorized|denied|allowlist|app_id|app_secret|timeout|failed" "${file}" 2>/dev/null | tail -n 40; then
+      found_errors=1
+    fi
+  done < <(collect_log_files)
+
+  if [[ "${found_logs}" == "0" ]]; then
+    warn "没有日志可扫描。"
+  elif [[ "${found_errors}" == "0" ]]; then
+    info "最近日志没有匹配到常见错误关键词。"
+  else
+    warn "上面列出了最近日志里的可疑错误关键词，请结合时间点排查。"
+  fi
+}
+
+run_health_check() {
+  print_title "Hermes/Gateway 状态检查"
+
+  need_macos
+
+  local hermes_bin
+  hermes_bin="$(find_hermes || true)"
+  if [[ -z "${hermes_bin}" ]]; then
+    warn "未找到 hermes 命令，Hermes 可能尚未安装。"
+    show_hermes_processes
+    show_recent_log_files
+    scan_recent_log_errors
+    info "健康检查完成：未找到 hermes 命令。"
+    return 0
+  fi
+
+  info "hermes: ${hermes_bin}"
+  print_title "Hermes 自带状态命令"
+  run_hermes_health_command "hermes --version" "${hermes_bin}" --version || true
+  run_hermes_health_command "hermes status" "${hermes_bin}" status || true
+  run_hermes_health_command "hermes config check" "${hermes_bin}" config check || true
+  run_hermes_health_command "hermes gateway status" "${hermes_bin}" gateway status || true
+  run_hermes_health_command "hermes gateway list" "${hermes_bin}" gateway list || true
+
+  show_hermes_processes
+
+  print_title "Hermes 自带日志命令"
+  if ! run_with_watchdog 30 "hermes logs" "${hermes_bin}" logs; then
+    warn "hermes logs 不可用或执行超时，改为读取本地日志文件。"
+    show_recent_log_files
+  fi
+
+  scan_recent_log_errors
+  info "健康检查完成。"
+}
+
 uninstall_hermes() {
   print_title "卸载 Hermes"
 
@@ -749,7 +867,7 @@ main_menu() {
     printf "1) 安装/修复 Hermes，并配置 DeepSeek 与聊天工具（推荐飞书）\n"
     printf "2) 启动/重启 Hermes/Gateway\n"
     printf "3) 关闭 Hermes/Gateway\n"
-    printf "4) 检查当前环境\n"
+    printf "4) 检查 Hermes/Gateway 状态与错误日志\n"
     printf "5) 只重新配置 DeepSeek Key/模型\n"
     printf "6) 只配置聊天工具（推荐飞书）\n"
     printf "7) 只安装/修复浏览器工具 Camoufox\n"
@@ -761,7 +879,7 @@ main_menu() {
       1) install_or_repair; pause ;;
       2) configure_proxy; stop_hermes_processes; install_feishu_dependencies; ensure_gateway_service_started; pause ;;
       3) stop_hermes_menu; pause ;;
-      4) configure_proxy; run_checks; pause ;;
+      4) run_health_check; pause ;;
       5) configure_deepseek; pause ;;
       6) configure_proxy; install_feishu_dependencies; configure_messaging; ensure_gateway_service_started; pause ;;
       7) configure_proxy; install_browser_tools; pause ;;
