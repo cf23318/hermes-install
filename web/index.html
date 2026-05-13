@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hermes Agent 内部安装</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          "Microsoft YaHei", sans-serif;
+        --bg: #f6f8fa;
+        --canvas: #ffffff;
+        --border: #d0d7de;
+        --border-muted: #d8dee4;
+        --text: #24292f;
+        --muted: #57606a;
+        --subtle: #6e7781;
+        --accent: #0969da;
+        --success: #2da44e;
+        --success-hover: #2c974b;
+        --code-bg: #f6f8fa;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-size: 14px;
+      }
+
+      main {
+        box-sizing: border-box;
+        max-width: 1120px;
+        margin: 0 auto;
+        padding: 28px 24px 56px;
+      }
+
+      .layout {
+        display: block;
+      }
+
+      .box {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--canvas);
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 20px;
+        line-height: 1.4;
+      }
+
+      .readme {
+        padding: 24px 32px 32px;
+      }
+
+      .readme h2 {
+        margin: 24px 0 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid var(--border-muted);
+        font-size: 20px;
+      }
+
+      .readme h2:first-child {
+        margin-top: 0;
+      }
+
+      .readme p {
+        margin: 0 0 16px;
+        color: var(--text);
+        line-height: 1.7;
+      }
+
+      .readme ul,
+      .readme ol {
+        margin: 0 0 16px;
+        padding-left: 24px;
+        line-height: 1.8;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 18px 0 22px;
+      }
+
+      a.button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 14px;
+        border: 1px solid rgba(27, 31, 36, 0.15);
+        border-radius: 6px;
+        background: var(--success);
+        color: #ffffff;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+
+      a.button:hover {
+        background: var(--success-hover);
+      }
+
+      a.secondary {
+        background: #f6f8fa;
+        color: var(--text);
+      }
+
+      a.secondary:hover {
+        background: #f3f4f6;
+      }
+
+      .disabled {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 34px;
+        padding: 0 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: #f6f8fa;
+        color: var(--muted);
+        font-weight: 600;
+        cursor: not-allowed;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .step {
+        border: 1px solid var(--border-muted);
+        border-radius: 6px;
+        padding: 12px;
+        background: #ffffff;
+      }
+
+      .step strong {
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text);
+      }
+
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.6;
+      }
+
+      .notice {
+        border: 1px solid #bf8700;
+        border-radius: 6px;
+        padding: 12px;
+        background: #fff8c5;
+        color: #3b2300;
+        line-height: 1.6;
+      }
+
+      code {
+        border-radius: 6px;
+        padding: 0.2em 0.4em;
+        background: var(--code-bg);
+        color: var(--text);
+        font-family:
+          ui-monospace, SFMono-Regular, SFMono-Regular, Consolas,
+          "Liberation Mono", Menlo, monospace;
+        font-size: 85%;
+      }
+
+      pre {
+        overflow: auto;
+        margin: 0 0 16px;
+        padding: 16px;
+        border-radius: 6px;
+        background: var(--code-bg);
+      }
+
+      pre code {
+        padding: 0;
+        background: transparent;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          padding: 18px 16px 40px;
+        }
+
+        .readme {
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="layout">
+        <section class="box">
+          <div class="readme">
+            <h2>Hermes Agent 内部安装</h2>
+            <p>
+              这个安装器用于 macOS 和 Windows 原生设备（非 WSL2）。它会自动检测代理、安装 Hermes Agent、
+              配置 DeepSeek 官方 endpoint，并引导用户选择聊天工具。聊天工具推荐使用飞书，
+              也可以选择 Hermes 支持的其他平台。
+            </p>
+
+            <div class="actions">
+              <a class="button" href="../dist/HermesAgentInstaller.command" download>下载 macOS 版本</a>
+              <a class="button secondary" href="../dist/HermesAgentInstaller.ps1" download>下载 Windows 版本</a>
+            </div>
+
+            <h2>Quick Start</h2>
+            <ol>
+              <li>先打开你的翻墙/代理软件，确保能访问 Google。</li>
+              <li>访问 <a href="https://www.google.com/" target="_blank" rel="noreferrer">https://www.google.com/</a>，确认代理已经生效。</li>
+              <li>按自己的系统点击 <strong>下载 macOS 版本</strong> 或 <strong>下载 Windows 版本</strong>。</li>
+              <li>macOS 双击 <code>HermesAgentInstaller.command</code>；Windows 右击 <code>HermesAgentInstaller.ps1</code> 文件，选择“使用 PowerShell 运行”。</li>
+              <li>选择 <code>1) 安装/修复 Hermes，并配置 DeepSeek 与聊天工具（推荐飞书）</code>。</li>
+              <li>输入自己的 DeepSeek API Key。</li>
+              <li>按向导选择聊天工具。推荐选择 <code>11. Feishu / Lark</code>。</li>
+            </ol>
+
+            <div class="notice">
+              如果 macOS 提示安全限制，请右键安装器文件并选择“打开”。如果 Windows 执行策略拦截，请打开 PowerShell，先运行 <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>，再运行 <code>.\HermesAgentInstaller.ps1</code>。
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
