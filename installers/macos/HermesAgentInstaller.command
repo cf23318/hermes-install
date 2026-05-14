@@ -877,7 +877,7 @@ main_menu() {
 
     case "${choice}" in
       1) install_or_repair; pause ;;
-      2) configure_proxy; stop_hermes_processes; install_feishu_dependencies; ensure_gateway_service_started; pause ;;
+      2) stop_hermes_processes; ensure_gateway_service_started; pause ;;
       3) stop_hermes_menu; pause ;;
       4) run_health_check; pause ;;
       5) configure_deepseek; pause ;;

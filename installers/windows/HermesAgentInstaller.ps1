@@ -1195,7 +1195,7 @@ function Main-Menu {
 
         switch ($choice) {
             "1" { Install-Or-Repair; Pause-Installer }
-            "2" { Configure-Proxy; Stop-HermesProcesses; Install-FeishuDependencies; Start-Gateway; Pause-Installer }
+            "2" { Stop-HermesProcesses; Start-Gateway; Pause-Installer }
             "3" { Stop-HermesMenu; Pause-Installer }
             "4" { Run-HealthCheck; Pause-Installer }
             "5" { Configure-DeepSeek; Pause-Installer }
