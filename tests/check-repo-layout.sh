@@ -48,5 +48,17 @@ grep -q 'href="downloads/HermesAgentInstaller.ps1"' "${ROOT_DIR}/site/index.html
 
 git -C "${ROOT_DIR}" check-ignore -q password.html
 git -C "${ROOT_DIR}" check-ignore -q password.txt
+for installer in \
+  "installers/macos/HermesAgentInstaller.command" \
+  "installers/windows/HermesAgentInstaller.ps1" \
+  "site/downloads/HermesAgentInstaller.command" \
+  "site/downloads/HermesAgentInstaller.ps1"
+do
+  if grep -q "DeepSeek 模型名" "${ROOT_DIR}/${installer}"; then
+    echo "DeepSeek model should use the default without prompting: ${installer}" >&2
+    exit 1
+  fi
+done
+
 
 echo "repo layout check passed"

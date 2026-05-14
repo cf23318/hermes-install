@@ -85,7 +85,7 @@ macOS 和 Windows 菜单已尽量保持一致：
 2) 启动/重启 Hermes/Gateway
 3) 关闭 Hermes/Gateway
 4) 检查 Hermes/Gateway 状态与错误日志
-5) 只重新配置 DeepSeek Key/模型
+5) 只重新配置 DeepSeek Key
 6) 只配置聊天工具（推荐飞书）
 7) 只安装/修复浏览器工具
 8) 卸载 Hermes（用于测试重装）

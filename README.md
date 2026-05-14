@@ -65,7 +65,7 @@ Windows 安装日志会写到：
 
 ## 注意事项
 
-- DeepSeek 的真实模型 ID 需要和 Hermes 当前版本保持一致。脚本默认使用 `deepseek-v4-pro`，如果实际不可用，可运行安装器选择“只重新配置 DeepSeek Key/模型”覆盖。
+- DeepSeek 的真实模型 ID 需要和 Hermes 当前版本保持一致。脚本默认使用 `deepseek-v4-pro`，普通安装向导不再要求用户手动填写模型名；内部测试需要覆盖时，可在运行前设置 `HERMES_DEFAULT_DEEPSEEK_MODEL`。
 - 聊天工具配置不是纯静默安装，官方流程需要 `hermes gateway setup` 扫码、OAuth 或输入平台密钥。
 - 推荐选择飞书。飞书默认走扫码/向导流程，通常不需要手动准备 App ID / App Secret；只有选择非扫码/手动凭据方式时才需要从 `https://open.feishu.cn/app?lang=zh-CN` 获取。
 - 如果安装器检测到残留的飞书配置不完整或疑似无效，可以选择删除 `.env` 里的 `FEISHU_*` 配置，继续使用其他聊天工具。

@@ -438,8 +438,8 @@ configure_deepseek() {
     assert_secret_valid "DEEPSEEK_API_KEY" "${key}"
   fi
 
-  read -r -p "DeepSeek 模型名 [${DEFAULT_DEEPSEEK_MODEL}]: " model
-  model="${model:-${DEFAULT_DEEPSEEK_MODEL}}"
+  model="${DEFAULT_DEEPSEEK_MODEL}"
+  info "使用默认 DeepSeek 模型: ${model}"
 
   mkdir -p "${HERMES_HOME}"
   chmod 700 "${HERMES_HOME}"
@@ -868,7 +868,7 @@ main_menu() {
     printf "2) 启动/重启 Hermes/Gateway\n"
     printf "3) 关闭 Hermes/Gateway\n"
     printf "4) 检查 Hermes/Gateway 状态与错误日志\n"
-    printf "5) 只重新配置 DeepSeek Key/模型\n"
+    printf "5) 只重新配置 DeepSeek Key\n"
     printf "6) 只配置聊天工具（推荐飞书）\n"
     printf "7) 只安装/修复浏览器工具 Camoufox\n"
     printf "8) 卸载 Hermes（用于测试重装）\n"

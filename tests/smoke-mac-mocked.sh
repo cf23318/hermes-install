@@ -102,7 +102,6 @@ env -i \
 1
 
 test-deepseek-key
-
 n
 
 0
@@ -110,8 +109,13 @@ INPUT
 
 grep -q "安装器已完成" "${OUTPUT_FILE}"
 grep -q "DeepSeek 配置完成" "${OUTPUT_FILE}"
+if grep -q "DeepSeek 模型名" "${OUTPUT_FILE}"; then
+  echo "installer should use the default DeepSeek model without prompting" >&2
+  exit 1
+fi
 grep -q "mock gateway start" "${OUTPUT_FILE}"
 grep -q "DEEPSEEK_API_KEY=test-deepseek-key" "${MOCK_HOME}/.hermes/.env"
+grep -q "model.default=deepseek-v4-pro" "${MOCK_HOME}/.hermes/config-set.log"
 grep -q "model.base_url=https://api.deepseek.com/v1" "${MOCK_HOME}/.hermes/config-set.log"
 
 env -i \

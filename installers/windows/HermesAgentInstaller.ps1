@@ -694,8 +694,8 @@ function Configure-DeepSeek {
         Assert-SecretLooksValid "DEEPSEEK_API_KEY" $key
     }
 
-    $model = Read-Host "DeepSeek 模型名 [$DefaultDeepSeekModel]"
-    if ([string]::IsNullOrWhiteSpace($model)) { $model = $DefaultDeepSeekModel }
+    $model = $DefaultDeepSeekModel
+    Write-Info "使用默认 DeepSeek 模型: $model"
 
     if (-not [string]::IsNullOrWhiteSpace($key)) {
         & $hermes config set DEEPSEEK_API_KEY $key
@@ -1186,7 +1186,7 @@ function Main-Menu {
         Write-Host "2) 启动/重启 Hermes/Gateway"
         Write-Host "3) 关闭 Hermes/Gateway"
         Write-Host "4) 检查 Hermes/Gateway 状态与错误日志"
-        Write-Host "5) 只重新配置 DeepSeek Key/模型"
+        Write-Host "5) 只重新配置 DeepSeek Key"
         Write-Host "6) 只配置聊天工具（推荐飞书）"
         Write-Host "7) 只安装/修复浏览器工具"
         Write-Host "8) 卸载 Hermes（用于测试重装）"
