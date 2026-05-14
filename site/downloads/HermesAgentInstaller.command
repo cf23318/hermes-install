@@ -604,7 +604,7 @@ configure_messaging() {
   fi
 
   info "接下来会启动 Hermes 官方聊天工具配置向导。"
-  info "推荐选择 11. Feishu / Lark（飞书），适合国内团队；也可以按自己的需要选择 Telegram、Slack、企业微信等。"
+  info "推荐选择 10. Feishu / Lark（飞书），适合国内团队；也可以按自己的需要选择 Telegram、Slack、企业微信等。"
   info "飞书默认走扫码/向导流程，通常不需要手动准备 App ID 和 App Secret；只有选择非扫码/手动凭据方式时才需要。"
   info "配置完成后，官方向导会回到聊天工具列表。看到 Done 为默认项时，直接按回车结束。"
   read -r -p "现在启动聊天工具配置向导？[Y/n] " answer
