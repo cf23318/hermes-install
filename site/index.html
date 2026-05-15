@@ -230,7 +230,12 @@
             </ol>
 
             <div class="notice">
-              如果 Windows 执行策略拦截，请打开 PowerShell，先运行 <code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code>，再运行 <code>.\HermesAgentInstaller.ps1</code>。
+              除了 DeepSeek API Key 和聊天工具选择（飞书、钉钉等）以外，其他提示都可以直接按回车使用默认选项。如果选错或配置乱了也没关系，重新运行安装器再来一遍即可；已经安装过的东西会自动跳过或复用，不会重复下载/安装，放心选。
+            </div>
+
+            <div class="notice">
+              如果 Windows 执行策略拦截，请打开 PowerShell，复制下面这一行后回车（会永久放行当前用户运行本地脚本，不需要管理员权限）：
+              <pre><code>Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned -Force; Unblock-File "$env:USERPROFILE\Downloads\HermesAgentInstaller.ps1"; &amp; "$env:USERPROFILE\Downloads\HermesAgentInstaller.ps1"</code></pre>
             </div>
 
             <h3>mac 安装指南</h3>
